@@ -4,5 +4,7 @@
 
 ### 使用工具：
 
-* Apache NetBeans12.0
-* jdk1.8.0_144
+* Win10；
+* Apache NetBeans IDE 12.0；
+* JDK 14.0.1；
+* MysSQL 8.0.22;

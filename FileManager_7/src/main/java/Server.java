@@ -1,43 +1,41 @@
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class Server {
-    
+    private int counter = 1;    
     public void runServer() {
         try {
             ServerSocket s = new ServerSocket(12345);
             System.out.println("Waiting for connection:");
             while (true) {
-                Runnable r = new ServerThread(s);
-                Thread t = new Thread(r);
-                t.start();
+                ServerThread temp = new ServerThread(s);
+                temp.start();
+                if (counter == 8) {
+                    break;
+                }
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }
 
-    class ServerThread extends Thread implements Runnable {
+    class ServerThread extends Thread{
 
         private ServerSocket server;
         private Socket connection;
         private ObjectOutputStream output;
         private ObjectInputStream input;
-        private int counter = 1;
 
         public ServerThread(ServerSocket i) {
             server = i;
             try {
                 connection = server.accept();
-                System.out.println("\nConnection " + counter + " received from: "
+                System.out.println("\nConnection " + counter++ + " received from: "
                     + connection.getInetAddress().getHostName());
                 this.getStreams();
             } catch (IOException ex) {
@@ -49,9 +47,6 @@ public class Server {
             try {
                 this.processConnection();
             } catch (IOException ex) {
-                System.out.println("\nServer " + getName() + " terminated connection");
-            } finally {
-                counter++;
             }
         }
 
@@ -68,11 +63,12 @@ public class Server {
             do {
                 try {
                     message = (String) input.readObject();
-                    System.out.println("\nCLIENT(" + getName() + ") " + message);
+                    System.out.println("\nCLIENT(" + this.getName() + ") " + message);
                 } catch (ClassNotFoundException classNotFoundException) {
                     System.out.println("\nUnknown object type received");
                 }
             } while (!message.equals("CLIENT>>> TERMINATE"));
+            System.out.println("CLIENT>>> TERMINATE");
             closeConnection();
         }
 
